@@ -2,134 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valentine Invite ❤️</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      height: 100vh;
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: white;
+      color:#fff;
+      text-align:center;
+      overflow:hidden;
+      position:relative;
 
-      /* Fallback gradient + image */
-      background:
-        linear-gradient(135deg, #ff758c, #ff7eb3),
-        url("bg.jpg") center/cover no-repeat fixed;
-      background-blend-mode: overlay;
-
-      position: relative;
-      overflow: hidden;
+      /* Show your image (not the gradient) */
+      background-color:#000;
     }
 
-    /* Dark overlay */
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 0;
+    /* Image layer */
+    body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image: url("bj.jpeg"); /* <-- change filename if needed */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index:0;
+      transform: scale(1.02);
     }
 
-    .card {
-      position: relative;
-      z-index: 1;
-      width: min(520px, 92vw);
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(8px);
-      padding: 36px 28px;
+    /* Soft dark overlay (keeps image visible) */
+    body::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,0.35);
+      z-index:1;
+    }
+
+    /* Hearts canvas sits above background but behind card */
+    #hearts{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    .card{
+      position:relative;
+      z-index:3;
+      width:min(560px, 92vw);
+      padding: 34px 26px;
       border-radius: 22px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 20px 55px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
     }
 
-    h1 {
-      margin: 0 0 12px;
+    h1{
+      margin:0 0 10px;
       font-size: 34px;
+      line-height:1.2;
     }
 
-    #question {
+    #question{
+      margin: 12px 0 18px;
       font-size: 20px;
-      margin: 14px 0 24px;
     }
 
-    .btnRow {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
+    .countdown{
+      margin: 10px 0 18px;
+      font-size: 18px;
+      opacity: 0.95;
     }
 
-    button {
+    .countdown strong{
+      font-size: 20px;
+    }
+
+    .btnRow{
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top: 6px;
+    }
+
+    button{
       font-size: 22px;
       padding: 14px 28px;
-      border: none;
+      border:0;
       border-radius: 999px;
-      cursor: pointer;
-      font-weight: 700;
+      cursor:pointer;
+      font-weight:700;
+      user-select:none;
       transition: transform 0.15s ease;
-      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: scale(0.97); }
+
+    #yesBtn{
+      background:#fff;
+      color:#ff4d6d;
     }
 
-    button:active {
-      transform: scale(0.97);
-    }
-
-    #yesBtn {
-      background: #ffffff;
-      color: #ff4d6d;
-    }
-
-    #noBtn {
-      background: #ff4d6d;
-      color: white;
-      position: absolute;
+    /* No button is absolute so it can run around */
+    #noBtn{
+      background:#ff4d6d;
+      color:#fff;
+      position: fixed;          /* key: keep it on screen even after moving */
       left: 50%;
       top: 70%;
       transform: translate(-50%, -50%);
+      z-index: 10;              /* above the card so it doesn’t “vanish” */
     }
 
-    .icon {
-      font-size: 42px;
+    .icon{
+      font-size: 40px;
       margin-left: 6px;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden{ display:none; }
 
-    #result h2 {
+    #result h2{
+      margin: 8px 0 10px;
       font-size: 30px;
-      margin: 10px 0;
     }
-
-    #result p {
-      font-size: 22px;
+    #result p{
       margin: 0;
+      font-size: 22px;
     }
   </style>
 </head>
 
 <body>
+  <canvas id="hearts"></canvas>
 
   <div class="card">
-    <h1>Hey Bubbi <span class="icon">💘</span></h1>
+    <h1 id="title">Hey Bubbi <span class="icon">💘</span></h1>
 
     <p id="question">Will you be my Valentine?</p>
+
+    <div class="countdown" id="countdown">
+      Countdown to our date: <strong id="timer">—</strong>
+    </div>
 
     <div class="btnRow">
       <button id="yesBtn">Yes <span class="icon">💖</span></button>
     </div>
-
-    <button id="noBtn">No <span class="icon">😅</span></button>
 
     <div id="result" class="hidden">
       <h2>Yayyy <span class="icon">🥰</span></h2>
@@ -137,45 +164,148 @@
     </div>
   </div>
 
-  <!-- Music -->
+  <button id="noBtn">No <span class="icon">😅</span></button>
+
   <audio id="bgMusic" preload="auto" loop>
-    <source src="music.mp3" type="audio/mpeg">
+    <source src="music.mp3" type="audio/mpeg" />
   </audio>
 
   <script>
+    // ====== Buttons + content ======
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
+    const title = document.getElementById("title");
     const question = document.getElementById("question");
     const result = document.getElementById("result");
     const music = document.getElementById("bgMusic");
 
-    // Make NO button run away
-    noBtn.addEventListener("mouseover", () => {
-      const padding = 20;
-      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+    function moveNoButton(){
+      const pad = 16;
 
-      const x = Math.random() * (maxX - padding) + padding;
-      const y = Math.random() * (maxY - padding) + padding;
+      // keep within viewport
+      const maxX = window.innerWidth - noBtn.offsetWidth - pad;
+      const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+
+      const x = Math.random() * (maxX - pad) + pad;
+      const y = Math.random() * (maxY - pad) + pad;
 
       noBtn.style.left = x + "px";
       noBtn.style.top = y + "px";
       noBtn.style.transform = "none";
-    });
+    }
 
-    // YES click behaviour
+    // Desktop: hover; Mobile: touch/mousedown
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("mousedown", (e) => { e.preventDefault(); moveNoButton(); });
+    noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNoButton(); }, { passive:false });
+
     yesBtn.addEventListener("click", () => {
+      // Remove title + question
+      title.classList.add("hidden");
       question.classList.add("hidden");
       yesBtn.classList.add("hidden");
       noBtn.classList.add("hidden");
       result.classList.remove("hidden");
 
-      // Start music from 20 seconds
+      // Music from 20s
       music.currentTime = 20;
       music.volume = 0.5;
       music.play().catch(() => {});
     });
-  </script>
 
+    // ====== Countdown (Dubai time) ======
+    // Feb 14 at 20:00 Dubai time is UTC+4 => 16:00 UTC
+    const targetUTC = Date.UTC(2026, 1, 14, 16, 0, 0); // month is 0-based; 1 = Feb
+    const timerEl = document.getElementById("timer");
+
+    function updateCountdown(){
+      const now = Date.now();
+      let diff = targetUTC - now;
+
+      if (diff <= 0){
+        timerEl.textContent = "It’s time ❤️";
+        return;
+      }
+
+      const sec = Math.floor(diff / 1000);
+      const days = Math.floor(sec / 86400);
+      const hrs  = Math.floor((sec % 86400) / 3600);
+      const mins = Math.floor((sec % 3600) / 60);
+      const s    = sec % 60;
+
+      timerEl.textContent = `${days}d ${hrs}h ${mins}m ${s}s`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // ====== Floating hearts (small, subtle) ======
+    const canvas = document.getElementById("hearts");
+    const ctx = canvas.getContext("2d");
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const hearts = [];
+    const heartCount = 24; // small and nice
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    function spawnHeart(){
+      return {
+        x: rand(0, canvas.width),
+        y: canvas.height + rand(10, 200),
+        size: rand(10, 18),
+        speed: rand(0.4, 1.2),
+        sway: rand(0.6, 1.6),
+        phase: rand(0, Math.PI * 2),
+        alpha: rand(0.25, 0.55)
+      };
+    }
+
+    for (let i=0; i<heartCount; i++) hearts.push(spawnHeart());
+
+    function drawHeart(x, y, s, a){
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(x, y);
+      ctx.scale(s/18, s/18);
+      ctx.beginPath();
+      // simple heart path
+      ctx.moveTo(0, 5);
+      ctx.bezierCurveTo(0, -5, -12, -5, -12, 5);
+      ctx.bezierCurveTo(-12, 16, 0, 20, 0, 28);
+      ctx.bezierCurveTo(0, 20, 12, 16, 12, 5);
+      ctx.bezierCurveTo(12, -5, 0, -5, 0, 5);
+      ctx.closePath();
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      for (const h of hearts){
+        h.phase += 0.02;
+        h.y -= h.speed;
+        h.x += Math.sin(h.phase) * h.sway * 0.6;
+
+        drawHeart(h.x, h.y, h.size, h.alpha);
+
+        if (h.y < -40){
+          // respawn at bottom
+          h.x = rand(0, canvas.width);
+          h.y = canvas.height + rand(20, 200);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
