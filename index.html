@@ -1,37 +1,181 @@
-<script>
-  const noBtn = document.getElementById("noBtn");
-  const yesBtn = document.getElementById("yesBtn");
-  const question = document.getElementById("question");
-  const result = document.getElementById("result");
-  const music = document.getElementById("bgMusic");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine Invite ❤️</title>
 
-  // Make "No" run away
-  noBtn.addEventListener("mouseover", () => {
-    const pad = 20;
-    const maxX = window.innerWidth - noBtn.offsetWidth - pad;
-    const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    const x = Math.random() * (maxX - pad) + pad;
-    const y = Math.random() * (maxY - pad) + pad;
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
 
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
-    noBtn.style.transform = "none";
-  });
+      /* Fallback gradient + image */
+      background:
+        linear-gradient(135deg, #ff758c, #ff7eb3),
+        url("bg.jpg") center/cover no-repeat fixed;
+      background-blend-mode: overlay;
 
-  // On Yes: hide question + buttons, show result + start music from 20s
-  yesBtn.addEventListener("click", () => {
-    question.classList.add("hidden");
-    yesBtn.classList.add("hidden");
-    noBtn.classList.add("hidden");
-    result.classList.remove("hidden");
+      position: relative;
+      overflow: hidden;
+    }
 
-    // Start music from 20 seconds
-    music.currentTime = 20;
-    music.volume = 0.5;
-    music.play().catch(() => {
-      // If the browser blocks it for any reason, user can tap again
-      // (rare since click is a user gesture)
+    /* Dark overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(520px, 92vw);
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      padding: 36px 28px;
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 34px;
+    }
+
+    #question {
+      font-size: 20px;
+      margin: 14px 0 24px;
+    }
+
+    .btnRow {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 22px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease;
+      user-select: none;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #yesBtn {
+      background: #ffffff;
+      color: #ff4d6d;
+    }
+
+    #noBtn {
+      background: #ff4d6d;
+      color: white;
+      position: absolute;
+      left: 50%;
+      top: 70%;
+      transform: translate(-50%, -50%);
+    }
+
+    .icon {
+      font-size: 42px;
+      margin-left: 6px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #result h2 {
+      font-size: 30px;
+      margin: 10px 0;
+    }
+
+    #result p {
+      font-size: 22px;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Hey Bubbi <span class="icon">💘</span></h1>
+
+    <p id="question">Will you be my Valentine?</p>
+
+    <div class="btnRow">
+      <button id="yesBtn">Yes <span class="icon">💖</span></button>
+    </div>
+
+    <button id="noBtn">No <span class="icon">😅</span></button>
+
+    <div id="result" class="hidden">
+      <h2>Yayyy <span class="icon">🥰</span></h2>
+      <p>Be ready on the 14th at 8 PM <span class="icon">🕗</span></p>
+    </div>
+  </div>
+
+  <!-- Music -->
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const question = document.getElementById("question");
+    const result = document.getElementById("result");
+    const music = document.getElementById("bgMusic");
+
+    // Make NO button run away
+    noBtn.addEventListener("mouseover", () => {
+      const padding = 20;
+      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+      const x = Math.random() * (maxX - padding) + padding;
+      const y = Math.random() * (maxY - padding) + padding;
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+      noBtn.style.transform = "none";
     });
-  });
-</script>
+
+    // YES click behaviour
+    yesBtn.addEventListener("click", () => {
+      question.classList.add("hidden");
+      yesBtn.classList.add("hidden");
+      noBtn.classList.add("hidden");
+      result.classList.remove("hidden");
+
+      // Start music from 20 seconds
+      music.currentTime = 20;
+      music.volume = 0.5;
+      music.play().catch(() => {});
+    });
+  </script>
+
+</body>
+</html>
