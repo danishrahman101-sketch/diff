@@ -1,96 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Will You Be My Valentine? ❤️</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      text-align: center;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.15);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      max-width: 400px;
-    }
-
-    h1 {
-      font-size: 28px;
-    }
-
-    p {
-      margin: 20px 0;
-      font-size: 18px;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      margin: 10px;
-      transition: all 0.3s ease;
-    }
-
-    #yesBtn {
-      background: #fff;
-      color: #ff4d6d;
-    }
-
-    #noBtn {
-      background: #ff4d6d;
-      color: white;
-      position: absolute;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-
-<div class="card" id="card">
-  <h1>Hey Bubbi ❤️</h1>
-  <p>Will you be my Valentine?</p>
-
-  <button id="yesBtn">Yes 💖</button>
-  <button id="noBtn">No 😅</button>
-
-  <div id="result" class="hidden">
-    <h1>Yayyy! 🥰</h1>
-    <p>Get ready for an amazing Valentine’s date 💕</p>
-  </div>
-</div>
-
 <script>
   const noBtn = document.getElementById("noBtn");
   const yesBtn = document.getElementById("yesBtn");
+  const question = document.getElementById("question");
   const result = document.getElementById("result");
+  const music = document.getElementById("bgMusic");
 
+  // Make "No" run away
   noBtn.addEventListener("mouseover", () => {
-    const x = Math.random() * (window.innerWidth - 100);
-    const y = Math.random() * (window.innerHeight - 100);
+    const pad = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - pad;
+    const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+
+    const x = Math.random() * (maxX - pad) + pad;
+    const y = Math.random() * (maxY - pad) + pad;
+
     noBtn.style.left = x + "px";
     noBtn.style.top = y + "px";
+    noBtn.style.transform = "none";
   });
 
+  // On Yes: hide question + buttons, show result + start music from 20s
   yesBtn.addEventListener("click", () => {
-    yesBtn.style.display = "none";
-    noBtn.style.display = "none";
+    question.classList.add("hidden");
+    yesBtn.classList.add("hidden");
+    noBtn.classList.add("hidden");
     result.classList.remove("hidden");
+
+    // Start music from 20 seconds
+    music.currentTime = 20;
+    music.volume = 0.5;
+    music.play().catch(() => {
+      // If the browser blocks it for any reason, user can tap again
+      // (rare since click is a user gesture)
+    });
   });
 </script>
-
-</body>
-</html>
