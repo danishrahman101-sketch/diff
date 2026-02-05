@@ -19,9 +19,7 @@
       text-align:center;
       overflow:hidden;
       position:relative;
-
-      /* Show your image (not the gradient) */
-      background-color:#000;
+      background-color:#000; /* fallback */
     }
 
     /* Image layer */
@@ -29,7 +27,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background-image: url("bj.jpeg"); /* <-- change filename if needed */
+      background-image: url("bj.jpeg"); /* ✅ your actual filename */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -37,7 +35,7 @@
       transform: scale(1.02);
     }
 
-    /* Soft dark overlay (keeps image visible) */
+    /* Soft dark overlay */
     body::after{
       content:"";
       position:absolute;
@@ -52,7 +50,10 @@
       inset:0;
       z-index:2;
       pointer-events:none;
+      opacity: 0;              /* hidden until YES */
+      transition: opacity 400ms ease;
     }
+    #hearts.on{ opacity: 1; }
 
     .card{
       position:relative;
@@ -82,10 +83,7 @@
       font-size: 18px;
       opacity: 0.95;
     }
-
-    .countdown strong{
-      font-size: 20px;
-    }
+    .countdown strong{ font-size: 20px; }
 
     .btnRow{
       display:flex;
@@ -113,15 +111,14 @@
       color:#ff4d6d;
     }
 
-    /* No button is absolute so it can run around */
     #noBtn{
       background:#ff4d6d;
       color:#fff;
-      position: fixed;          /* key: keep it on screen even after moving */
+      position: fixed;          /* stays visible */
       left: 50%;
       top: 70%;
       transform: translate(-50%, -50%);
-      z-index: 10;              /* above the card so it doesn’t “vanish” */
+      z-index: 10;              /* above card */
     }
 
     .icon{
@@ -150,7 +147,8 @@
 
     <p id="question">Will you be my Valentine?</p>
 
-    <div class="countdown" id="countdown">
+    <!-- ✅ Hidden until YES -->
+    <div class="countdown hidden" id="countdown">
       Countdown to our date: <strong id="timer">—</strong>
     </div>
 
@@ -159,8 +157,8 @@
     </div>
 
     <div id="result" class="hidden">
-      <h2>Yayyy <span class="icon">🥰</span></h2>
-      <p>Be ready on the 14th at 8 PM <span class="icon">🕗</span></p>
+      <h2>I Love You <span class="icon">🥰</span></h2>
+      <p>Be ready on the 14th FEB at 8 PM <span class="icon">🕗</span></p>
     </div>
   </div>
 
@@ -171,18 +169,30 @@
   </audio>
 
   <script>
-    // ====== Buttons + content ======
+    // ====== Elements ======
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const title = document.getElementById("title");
     const question = document.getElementById("question");
     const result = document.getElementById("result");
     const music = document.getElementById("bgMusic");
+    const countdownBox = document.getElementById("countdown");
 
+    // Hearts canvas
+    const canvas = document.getElementById("hearts");
+    const ctx = canvas.getContext("2d");
+    let heartsRunning = false;
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    // ====== NO button moves ======
     function moveNoButton(){
       const pad = 16;
-
-      // keep within viewport
       const maxX = window.innerWidth - noBtn.offsetWidth - pad;
       const maxY = window.innerHeight - noBtn.offsetHeight - pad;
 
@@ -194,33 +204,18 @@
       noBtn.style.transform = "none";
     }
 
-    // Desktop: hover; Mobile: touch/mousedown
     noBtn.addEventListener("mouseover", moveNoButton);
     noBtn.addEventListener("mousedown", (e) => { e.preventDefault(); moveNoButton(); });
     noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNoButton(); }, { passive:false });
 
-    yesBtn.addEventListener("click", () => {
-      // Remove title + question
-      title.classList.add("hidden");
-      question.classList.add("hidden");
-      yesBtn.classList.add("hidden");
-      noBtn.classList.add("hidden");
-      result.classList.remove("hidden");
-
-      // Music from 20s
-      music.currentTime = 20;
-      music.volume = 0.5;
-      music.play().catch(() => {});
-    });
-
     // ====== Countdown (Dubai time) ======
     // Feb 14 at 20:00 Dubai time is UTC+4 => 16:00 UTC
-    const targetUTC = Date.UTC(2026, 1, 14, 16, 0, 0); // month is 0-based; 1 = Feb
+    const targetUTC = Date.UTC(2026, 1, 14, 16, 0, 0);
     const timerEl = document.getElementById("timer");
 
     function updateCountdown(){
       const now = Date.now();
-      let diff = targetUTC - now;
+      const diff = targetUTC - now;
 
       if (diff <= 0){
         timerEl.textContent = "It’s time ❤️";
@@ -235,38 +230,29 @@
 
       timerEl.textContent = `${days}d ${hrs}h ${mins}m ${s}s`;
     }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
 
-    // ====== Floating hearts (small, subtle) ======
-    const canvas = document.getElementById("hearts");
-    const ctx = canvas.getContext("2d");
-
-    function resize(){
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resize);
-    resize();
-
+    // ====== Floating hearts (start only after YES) ======
     const hearts = [];
-    const heartCount = 24; // small and nice
+    const heartCount = 26; // small & nice
 
     function rand(min, max){ return Math.random() * (max - min) + min; }
 
     function spawnHeart(){
       return {
         x: rand(0, canvas.width),
-        y: canvas.height + rand(10, 200),
+        y: canvas.height + rand(10, 240),
         size: rand(10, 18),
-        speed: rand(0.4, 1.2),
+        speed: rand(0.45, 1.25),
         sway: rand(0.6, 1.6),
         phase: rand(0, Math.PI * 2),
-        alpha: rand(0.25, 0.55)
+        alpha: rand(0.22, 0.55)
       };
     }
 
-    for (let i=0; i<heartCount; i++) hearts.push(spawnHeart());
+    function initHearts(){
+      hearts.length = 0;
+      for (let i=0; i<heartCount; i++) hearts.push(spawnHeart());
+    }
 
     function drawHeart(x, y, s, a){
       ctx.save();
@@ -274,7 +260,6 @@
       ctx.translate(x, y);
       ctx.scale(s/18, s/18);
       ctx.beginPath();
-      // simple heart path
       ctx.moveTo(0, 5);
       ctx.bezierCurveTo(0, -5, -12, -5, -12, 5);
       ctx.bezierCurveTo(-12, 16, 0, 20, 0, 28);
@@ -286,7 +271,9 @@
       ctx.restore();
     }
 
-    function animate(){
+    function animateHearts(){
+      if (!heartsRunning) return;
+
       ctx.clearRect(0,0,canvas.width,canvas.height);
 
       for (const h of hearts){
@@ -297,15 +284,40 @@
         drawHeart(h.x, h.y, h.size, h.alpha);
 
         if (h.y < -40){
-          // respawn at bottom
           h.x = rand(0, canvas.width);
-          h.y = canvas.height + rand(20, 200);
+          h.y = canvas.height + rand(20, 240);
         }
       }
 
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateHearts);
     }
-    animate();
+
+    // ====== YES click ======
+    yesBtn.addEventListener("click", () => {
+      // Remove title + question + buttons, show result
+      title.classList.add("hidden");
+      question.classList.add("hidden");
+      yesBtn.classList.add("hidden");
+      noBtn.classList.add("hidden");
+
+      result.classList.remove("hidden");
+
+      // Show countdown only now
+      countdownBox.classList.remove("hidden");
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      // Start hearts only now
+      canvas.classList.add("on");
+      initHearts();
+      heartsRunning = true;
+      animateHearts();
+
+      // Start music from 20 seconds
+      music.currentTime = 20;
+      music.volume = 0.5;
+      music.play().catch(() => {});
+    });
   </script>
 </body>
 </html>
